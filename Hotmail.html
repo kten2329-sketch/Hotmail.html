@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool lọc tài khoản Hotmail - Outlook</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', monospace;
+        }
+        body {
+            background: #0b1221;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: #0f172a;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5);
+            padding: 24px;
+            border: 1px solid #1e293b;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0 0 6px 0;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sub {
+            color: #94a3b8;
+            border-left: 3px solid #3b82f6;
+            padding-left: 14px;
+            margin: 8px 0 20px 0;
+            font-size: 0.9rem;
+        }
+        .grid-2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .panel {
+            flex: 1;
+            min-width: 280px;
+            background: #0f172a;
+            border-radius: 20px;
+            border: 1px solid #1e293b;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header {
+            padding: 16px 20px;
+            background: #111827;
+            border-bottom: 1px solid #1e293b;
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: 1.1rem;
+        }
+        textarea {
+            width: 100%;
+            height: 380px;
+            background: #020617;
+            color: #e2e8f0;
+            border: none;
+            padding: 18px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+        }
+        textarea:focus {
+            background: #030712;
+        }
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            background: #111827;
+            border-top: 1px solid #1e293b;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #1e293b;
+            border: none;
+            color: #cbd5e1;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        button.primary {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 2px 6px rgba(59,130,246,0.3);
+        }
+        button.primary:hover {
+            background: #2563eb;
+            transform: scale(1.02);
+        }
+        button:hover {
+            background: #334155;
+            color: white;
+        }
+        .stats {
+            background: #0f172a;
+            margin-top: 20px;
+            padding: 14px 20px;
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid #1e293b;
+            font-size: 0.85rem;
+            color: #a5f3fc;
+        }
+        .badge {
+            background: #1e293b;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #facc15;
+        }
+        .footer {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 20px;
+            color: #475569;
+        }
+        hr {
+            border-color: #1e293b;
+            margin: 8px 0;
+        }
+        .copy-btn {
+            background: #0f172a;
+            border: 1px solid #3b82f6;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📧 Tool lọc tài khoản Hotmail / Outlook</h1>
+    <div class="sub">
+        Định dạng đầu vào: <strong>user|pass|email|pass2</strong> &nbsp;→&nbsp; 
+        Kết quả: <strong>email|pass2</strong><br>
+        Ví dụ: <code class="badge" style="background:#0f172a;">user17659160350137|QgDH01#uROL97oOK|ilhammaigauk@outlook.com|deTMj58U</code>
+    </div>
+
+    <div class="grid-2">
+        <!-- INPUT panel -->
+        <div class="panel">
+            <div class="panel-header">📥 Dữ liệu thô (dòng | cách)</div>
+            <textarea id="inputData" placeholder='Nhập danh sách tài khoản, mỗi dòng có định dạng:
+user|pass|email|pass2
+Ví dụ:
+user1|abc123|john@hotmail.com|xyz789
+user2|pass123|mary@outlook.com|secret99
+...'></textarea>
+            <div class="toolbar">
+                <button id="filterBtn" class="primary">✨ Lọc & xuất email|pass2</button>
+                <button id="clearInput">🗑 Xóa input</button>
+                <button id="exampleBtn">📋 Load ví dụ</button>
+            </div>
+        </div>
+
+        <!-- OUTPUT panel -->
+        <div class="panel">
+            <div class="panel-header">📤 Kết quả (email|pass2)</div>
+            <textarea id="outputData" readonly placeholder="Kết quả sẽ hiển thị ở đây ..."></textarea>
+            <div class="toolbar">
+                <button id="copyBtn" class="copy-btn">📋 Sao chép kết quả</button>
+                <button id="clearOutput">⟳ Xóa kết quả</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats" id="statsPanel">
+        <span>📊 Trạng thái: <span id="statusMsg">Chưa xử lý</span></span>
+        <span>✅ Hợp lệ: <span id="validCount">0</span> &nbsp;|&nbsp; ❌ Lỗi/Lọc bỏ: <span id="invalidCount">0</span></span>
+    </div>
+    <div class="footer">
+        ⚡ Tự động lọc các dòng không đúng 4 field (user|pass|email|pass2).<br>
+        Chỉ giữ lại những dòng có email chứa @hotmail, @outlook, @live, @msn (không phân biệt hoa thường). 
+        Xuất đúng theo format <strong>email|pass2</strong>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // DOM elements
+        const inputArea = document.getElementById('inputData');
+        const outputArea = document.getElementById('outputData');
+        const filterBtn = document.getElementById('filterBtn');
+        const clearInputBtn = document.getElementById('clearInput');
+        const clearOutputBtn = document.getElementById('clearOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const exampleBtn = document.getElementById('exampleBtn');
+        
+        const validSpan = document.getElementById('validCount');
+        const invalidSpan = document.getElementById('invalidCount');
+        const statusMsgSpan = document.getElementById('statusMsg');
+
+        // Hàm lọc chính
+        function filterAccounts(rawText) {
+            const lines = rawText.split(/\r?\n/);
+            const validResults = [];
+            let invalidLines = 0;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (line === "") continue; // bỏ dòng trống
+
+                // Tách theo dấu |
+                const parts = line.split('|');
+                if (parts.length !== 4) {
+                    invalidLines++;
+                    continue;
+                }
+
+                const user = parts[0].trim();
+                const pass = parts[1].trim();
+                const email = parts[2].trim();
+                const pass2 = parts[3].trim();
+
+                // Kiểm tra email có phải dạng Microsoft (hotmail, outlook, live, msn)
+                const emailLower = email.toLowerCase();
+                const isMicrosoftEmail = /@(hotmail|outlook|live|msn)\./.test(emailLower);
+                
+                // Bỏ qua nếu email không phải dạng hợp lệ (có thể tùy chỉnh)
+                if (!isMicrosoftEmail) {
+                    invalidLines++;
+                    continue;
+                }
+
+                // Kiểm tra cơ bản email có chứa @ và không rỗng
+                if (email.length === 0 || pass2.length === 0) {
+                    invalidLines++;
+                    continue;
+                }
+
+                // Định dạng đầu ra: email|pass2
+                validResults.push(`${email}|${pass2}`);
+            }
+
+            return { valid: validResults, invalidCount: invalidLines };
+        }
+
+        // Hàm cập nhật giao diện thống kê & kết quả
+        function processAndDisplay() {
+            const rawData = inputArea.value;
+            if (!rawData.trim()) {
+                outputArea.value = '';
+                validSpan.innerText = '0';
+                invalidSpan.innerText = '0';
+                statusMsgSpan.innerText = '⚠️ Chưa có dữ liệu đầu vào';
+                return;
+            }
+
+            const { valid, invalidCount } = filterAccounts(rawData);
+            
+            if (valid.length === 0) {
+                outputArea.value = '';
+                statusMsgSpan.innerText = '❌ Không tìm thấy dòng hợp lệ (cần đúng 4 cột và email @hotmail/@outlook/@live/@msn)';
+            } else {
+                outputArea.value = valid.join('\n');
+                statusMsgSpan.innerText = `✔️ Lọc thành công (${valid.length} tài khoản)`;
+            }
+            
+            validSpan.innerText = valid.length;
+            invalidSpan.innerText = invalidCount;
+        }
+
+        // Các hàm hỗ trợ
+        function setExample() {
+            inputArea.value = `user17659160350137|QgDH01#uROL97oOK|ilhammaigauk@outlook.com|deTMj58U
+john123|pass1234|john.doe@hotmail.com|MyPass#99
+mike_nguyen|helloKitty|mike@outlook.com|P@ssw0rd!
+error_line_only_3_fields|abc|test@gmail.com
+sarah_lee|securePass|sarah@live.com|finalPass987
+invalid_email_example|anything|not_an_email|pass2
+userX|pX|support@msn.com|StrongPwd
+fullname|abcxyz|google@gmail.com|nothing
+lastValid|1234|validuser@outlook.com|lastPwd2024`;
+            statusMsgSpan.innerText = '📋 Đã load ví dụ (có cả dòng lỗi để test)';
+            processAndDisplay();
+        }
+
+        function clearInput() {
+            inputArea.value = '';
+            outputArea.value = '';
+            validSpan.innerText = '0';
+            invalidSpan.innerText = '0';
+            statusMsgSpan.innerText = '🧹 Đã xóa toàn bộ';
+        }
+
+        function clearOutput() {
+            outputArea.value = '';
+            // không reset thống kê luôn, chỉ xóa output
+            // nhưng để đồng bộ, nên giữ stats, nhưng nếu người dùng xóa thì cập nhật lại từ input
+            if (inputArea.value.trim()) {
+                processAndDisplay();
+            } else {
+                validSpan.innerText = '0';
+                invalidSpan.innerText = '0';
+                statusMsgSpan.innerText = '🗑 Output đã xóa, chưa có dữ liệu input';
+            }
+        }
+
+        async function copyResult() {
+            const textToCopy = outputArea.value;
+            if (!textToCopy.trim()) {
+                alert('⚠️ Không có dữ liệu để sao chép!');
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '✅ Đã sao chép!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 1500);
+            } catch (err) {
+                alert('Lỗi sao chép: ' + err);
+            }
+        }
+
+        // Sự kiện
+        filterBtn.addEventListener('click', processAndDisplay);
+        clearInputBtn.addEventListener('click', clearInput);
+        clearOutputBtn.addEventListener('click', clearOutput);
+        copyBtn.addEventListener('click', copyResult);
+        exampleBtn.addEventListener('click', setExample);
+
+        // Nếu người dùng nhập xong có thể nhấn Ctrl+Enter trong textarea để lọc tiện lợi
+        inputArea.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                processAndDisplay();
+            }
+        });
+
+        // Khởi tạo mẫu sẵn nhẹ (ví dụ đầu tiên cho dễ hình dung)
+        if (inputArea.value.trim() === "") {
+            setExample();
+        } else {
+            processAndDisplay();
+        }
+    })();
+</script>
+</body>
+</html>
